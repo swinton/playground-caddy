@@ -1,0 +1,14 @@
+:8080 {
+    log {
+      output file {env.CADDY_ROOT}/access.log
+    }
+
+    # https://caddyserver.com/docs/caddyfile/directives/uri
+    # /api/v3/user should become /user
+    uri strip_prefix /api/v3
+
+    reverse_proxy https://api.github.com {
+        header_up Host {http.reverse_proxy.upstream.hostport}
+        header_up Authorization {http.request.header.Authorization}
+    }
+}
