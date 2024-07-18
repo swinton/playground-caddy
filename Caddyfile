@@ -14,7 +14,13 @@
 
 	# if the URL includes .git (e.g. /wintron/demo-snyk-set-and-forget.git) then it needs to be handled separately
 	reverse_proxy https://github.com {
-		header_up Host {http.reverse_proxy.upstream.hostport}
-		header_up Authorization {http.request.header.Authorization}
+		header_up X-Real-IP {remote_host}
+		# header_up X-Forwarded-For {remote_host}
+		# header_up X-Forwarded-Proto {scheme}
+		header_up Host {host}
+		header_up Connection {>Connection}
+		header_up Upgrade {>Upgrade}
+		header_up Cache-Control {>Cache-Control}
+		header_up Authorization {>Authorization}
 	}
 }
