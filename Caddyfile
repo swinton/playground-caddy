@@ -1,14 +1,20 @@
 :8080 {
-    log {
-      output file {env.CADDY_ROOT}/access.log
-    }
+	log {
+		output file {env.CADDY_ROOT}/access.log
+	}
 
-    # https://caddyserver.com/docs/caddyfile/directives/uri
-    # /api/v3/user should become /user
-    uri strip_prefix /api/v3
+	# https://caddyserver.com/docs/caddyfile/directives/handle_path
+	# /api/v3/user should become /user
+	handle_path /api/v3/* {
+		reverse_proxy https://api.github.com {
+			header_up Host {http.reverse_proxy.upstream.hostport}
+			header_up Authorization {http.request.header.Authorization}
+		}
+	}
 
-    reverse_proxy https://api.github.com {
-        header_up Host {http.reverse_proxy.upstream.hostport}
-        header_up Authorization {http.request.header.Authorization}
-    }
+	# if the URL includes .git (e.g. /wintron/demo-snyk-set-and-forget.git) then it needs to be handled separately
+	reverse_proxy https://github.com {
+		header_up Host {http.reverse_proxy.upstream.hostport}
+		header_up Authorization {http.request.header.Authorization}
+	}
 }
