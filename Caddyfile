@@ -1,26 +1,32 @@
+(forwarding) {
+	header_up X-Real-IP {remote_host}
+	header_up Host {host}
+	header_up Accept-Encoding {>Accept-Encoding}
+	header_up Accept {>Accept}
+	header_up Authorization {>Authorization}
+	header_up User-Agent {>User-Agent}
+	header_up Connection {>Connection}
+	header_up Upgrade {>Upgrade}
+	header_up Cache-Control {>Cache-Control}
+	header_up Pragma {>Pragma}
+}
+
 :8080 {
 	log {
 		output file {env.CADDY_ROOT}/access.log
+		format json
 	}
 
 	# https://caddyserver.com/docs/caddyfile/directives/handle_path
 	# /api/v3/user should become /user
 	handle_path /api/v3/* {
 		reverse_proxy https://api.github.com {
-			header_up Host {http.reverse_proxy.upstream.hostport}
-			header_up Authorization {http.request.header.Authorization}
+			import forwarding
 		}
 	}
 
 	# if the URL includes .git (e.g. /wintron/demo-snyk-set-and-forget.git) then it needs to be handled separately
 	reverse_proxy https://github.com {
-		header_up X-Real-IP {remote_host}
-		# header_up X-Forwarded-For {remote_host}
-		# header_up X-Forwarded-Proto {scheme}
-		header_up Host {host}
-		header_up Connection {>Connection}
-		header_up Upgrade {>Upgrade}
-		header_up Cache-Control {>Cache-Control}
-		header_up Authorization {>Authorization}
+		import forwarding
 	}
 }
