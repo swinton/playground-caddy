@@ -1,14 +1,6 @@
 (forwarding) {
-	header_up X-Real-IP {remote_host}
-	header_up Host {host}
-	header_up Accept-Encoding {>Accept-Encoding}
-	header_up Accept {>Accept}
-	header_up Authorization {>Authorization}
-	header_up User-Agent {>User-Agent}
-	header_up Connection {>Connection}
-	header_up Upgrade {>Upgrade}
-	header_up Cache-Control {>Cache-Control}
-	header_up Pragma {>Pragma}
+	header_up Host {http.reverse_proxy.upstream.hostport}
+	header_up Authorization {http.request.header.Authorization}
 }
 
 :8080 {
